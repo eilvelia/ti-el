@@ -1,0 +1,2 @@
+*.pegjs linguist-language=JavaScript
+*.flow linguist-language=JavaScript

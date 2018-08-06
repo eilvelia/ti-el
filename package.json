@@ -1,0 +1,44 @@
+{
+  "name": "ti-el",
+  "version": "0.0.0-monorepo",
+  "description": "",
+  "main": "dist/index.js",
+  "private": true,
+  "scripts": {
+    "flow:check": "flow check --include-warnings --max-warnings 0",
+    "types": "flow-copy-source src dist",
+    "build": "lerna exec 'npm run build'",
+    "build:peg": "lerna run --scope tl-parser build:peg",
+    "test": "lerna run test",
+    "prepare": "lerna run prepare",
+    "prepack": "lerna run prepack",
+    "postinstall": "lerna bootstrap",
+    "publish": "lerna publish"
+  },
+  "files": [
+    ".flowconfig",
+    "flow-typed",
+    "README.md",
+    "LICENSE"
+  ],
+  "devDependencies": {
+    "flow-bin": "^0.76.0",
+    "flow-copy-source": "^1.3.0",
+    "lerna": "^2.11.0"
+  },
+  "author": "Bannerets <save14@protonmail.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Bannerets/ti-el.git"
+  },
+  "keywords": [
+    "tl",
+    "type language",
+    "telegram"
+  ],
+  "bugs": {
+    "url": "https://github.com/Bannerets/ti-el/issues"
+  },
+  "homepage": "https://github.com/Bannerets/ti-el#readme"
+}

@@ -1,0 +1,13 @@
+[ignore]
+<PROJECT_ROOT>/dist/
+
+[include]
+
+[libs]
+
+[lints]
+
+[options]
+module.use_strict=true
+
+[strict]

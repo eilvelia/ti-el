@@ -1,0 +1,55 @@
+{
+  "private": true,
+  "name": "tl-parser",
+  "version": "0.1.0",
+  "description": "TL (Type Language) parser",
+  "main": "dist/index.js",
+  "scripts": {
+    "clean": "rimraf dist/ temp/*",
+    "flow:check": "flow check --include-warnings --max-warnings 0",
+    "build:peg": "mkdirp temp && pegjs -o temp/tl.js src/tl.pegjs",
+    "build:babel": "babel temp/ -d dist/",
+    "build": "npm run build:peg && npm run build:babel",
+    "test": "npm run flow:check",
+    "prepare": "npm run clean && npm run build",
+    "prepack": "npm test"
+  },
+  "files": [
+    "dist",
+    "ast.h.js",
+    "index.js",
+    "index.js.flow",
+    "index.d.ts",
+    ".flowconfig",
+    "README.md"
+  ],
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-plugin-transform-object-rest-spread": "^6.26.0",
+    "babel-preset-env": "^1.6.1",
+    "flow-bin": "^0.76.0",
+    "mkdirp": "^0.5.1",
+    "pegjs": "^0.10.0",
+    "rimraf": "^2.6.2"
+  },
+  "author": "Bannerets <save14@protonmail.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Bannerets/ti-el.git"
+  },
+  "keywords": [
+    "tl",
+    "type language",
+    "telegram",
+    "vk",
+    "parser",
+    "peg",
+    "pegjs",
+    "peg.js"
+  ],
+  "bugs": {
+    "url": "https://github.com/Bannerets/ti-el/issues"
+  },
+  "homepage": "https://github.com/Bannerets/ti-el#readme"
+}

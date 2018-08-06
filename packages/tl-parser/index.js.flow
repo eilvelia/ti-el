@@ -1,0 +1,33 @@
+// @flow
+
+import type { TLProgram } from './ast.h'
+
+type Location = {
+	line: number,
+	column: number,
+	offset: number
+}
+
+type LocationRange = {
+	start: Location,
+	end: Location
+}
+
+declare export class SyntaxError {
+	line: number;
+	column: number;
+	offset: number;
+	location: LocationRange;
+	expected: any[];
+	found: any;
+	name: string;
+	message: string;
+}
+
+type ParserOptions = {
+  startRule?: string,
+  tracer?: any,
+  [key: string]: any
+}
+
+declare export function parse(str: string, options?: ParserOptions): TLProgram
