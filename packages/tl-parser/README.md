@@ -2,7 +2,7 @@
 
 [![npm](https://img.shields.io/npm/v/tl-parser.svg)](https://www.npmjs.com/package/tl-parser)
 
-TL (Type Language) parser.  
+[TL](https://core.telegram.org/mtproto/TL) (Type Language) parser.  
 Uses [pegjs](https://github.com/pegjs/pegjs).
 
 wip

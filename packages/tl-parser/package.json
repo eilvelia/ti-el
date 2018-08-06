@@ -1,9 +1,8 @@
 {
-  "private": true,
   "name": "tl-parser",
   "version": "0.1.0",
   "description": "TL (Type Language) parser",
-  "main": "dist/index.js",
+  "main": "index.js",
   "scripts": {
     "clean": "rimraf dist/ temp/*",
     "flow:check": "flow check --include-warnings --max-warnings 0",
