@@ -4,12 +4,16 @@ const fs = require('fs')
 const { parse } = require('../index.js')
 
 const filename = process.argv[2]
+const json = process.argv[3] === '--json'
 
 const str = fs.readFileSync(filename).toString()
 
 try {
   const ast = parse(str)
-  console.dir(ast, { depth: null })
+  if (json)
+    console.log(JSON.stringify(ast, null, '  '))
+  else
+    console.dir(ast, { depth: null })
 } catch (e) {
   console.error(e.toString())
   if (e.location) console.error('Location:', e.location.start)
