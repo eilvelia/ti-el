@@ -6,9 +6,11 @@
   "scripts": {
     "clean": "rimraf dist/ temp/*",
     "flow:check": "flow check --include-warnings --max-warnings 0",
-    "build:peg": "mkdirp temp && pegjs -o temp/tl.js src/tl.pegjs",
+    "build:peg": "pegjs -o temp/tl.js src/tl.pegjs",
+    "build:peg:dev": "pegjs --trace -o temp/tl.js src/tl.pegjs",
     "build:babel": "babel temp/ -d dist/",
-    "build": "npm run build:peg && npm run build:babel",
+    "build": "mkdirp temp && npm run build:peg && npm run build:babel",
+    "build:dev": "mkdirp temp && npm run build:peg:dev && npm run build:babel",
     "test": "npm run flow:check",
     "prepare": "npm run clean && npm run build",
     "prepack": "npm test"

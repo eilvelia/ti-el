@@ -11,3 +11,4 @@ yarn.lock
 /*.pegjs
 temp/
 *.log
+/*.txt

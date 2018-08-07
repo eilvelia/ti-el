@@ -86,8 +86,8 @@ NatConst = Digit+ { return Number(text()) }
 
 TLProgram
   = head:ConstrDeclarations tail:(
-      "---" "functions" "---" __ FunDeclarations
-      / "---" "types" "---" __ ConstrDeclarations
+      __ "---" "functions" "---" __ FunDeclarations
+      / __ "---" "types" "---" __ ConstrDeclarations
     )* {
       const declarations = extractLast(tail)
       const constructors = makeDeclarationsNode(
@@ -133,12 +133,13 @@ Expr
     }
 Subexpr
   = Term
-  / NatConst "+" Subexpr
+  / NatConst __ "+" __ Subexpr
   // / Subexpr "+" NatConst
 // Possible infinite loop when parsing
 // (left recursion: TypeExpr -> Expr -> Subexpr -> Subexpr).
 Term
   // order changed
+  // TODO
   = "(" __ expr:Expr __ ")" { return expr }
   / id:TypeIdent __ "<" __ head:Expr tail:(__ "," __ Expr)* __ ">" {
       return makeNode('Term', {
@@ -149,7 +150,11 @@ Term
   / TypeIdent
   / VarIdent
   / NatConst
-  / "%" term:Term { return term } // TODO
+  / "%" terms:(__ Term)+ {
+      return makeNode('PercentTerm' /* the best name lol */, {
+        terms: extractLast(terms)
+      })
+    }
 TypeIdent
   = name:(BoxedTypeIdent / LcIdentNs / "#")
     { return makeNode('TypeIdentifier', { name }) }
@@ -172,13 +177,14 @@ CombinatorDecl
   = id:FullCombinatorId __
     optionalArgs:(OptArgs __)*
     args:(Args __)*
-    "=" __
+    "=" __ excl:"!"? __
     resultType:ResultType __ ";"
     {
       return makeNode('CombinatorDeclaration', {
         id,
         optionalArgs: extractFirst(optionalArgs),
         args: extractFirst(args),
+        excl: excl === "!",
         resultType
       })
     }
@@ -189,18 +195,12 @@ CombinatorId
   = name:(LcIdentNs / "_")
     { return makeNode('CombinatorIdentifier', { name }) }
 OptArgs
-  = "{" __ ids:VarIdent+ __ ":" __ "!"? __ expression:TypeExpr __ "}"
-    { return makeNode('OptionalArgument', { ids, expression }) }
+  = "{" ids:(__ VarIdent)+ __ ":" __ "!"? __ expression:TypeExpr __ "}"
+    { return makeNode('OptionalArgument', { ids: extractLast(ids), expression }) }
 Args
-  = id:VarIdentOpt __ ":" __ cond:ConditionalDef? "!"? __ term:TypeTerm {
-      return makeArgsNode({
-        id,
-        conditionalDef: cond,
-        term
-      })
-    }
-  / id:(VarIdentOpt __ ":")?
-    __ mult:(Multiplicity "*")? __
+  // order changed
+  = id:(VarIdentOpt __ ":")? __
+    mult:(Multiplicity "*")? __
     "[" __ subargs:(__ Args)* __ "]" {
       return makeArgsNode({
         id: safeFirst(id),
@@ -208,6 +208,10 @@ Args
         subargs: extractLast(subargs)
       })
     }
+  / id:VarIdentOpt __ ":" __ cond:ConditionalDef? "!"? __ term:TypeTerm
+    { return makeArgsNode({ id, conditionalDef: cond, term }) }
+  / id:VarIdentOpt __ ":" __ "(" __ cond:ConditionalDef? "!"? __ term:TypeTerm __ ")"
+    { return makeArgsNode({ id, conditionalDef: cond, term }) }
   / "(" __ ids:VarIdentOpt+ __ ":" __ "!"? __ term:TypeTerm __ ")"
     { return makeArgsNode({ ids, term }) }
   / "!"? __ term:TypeTerm

@@ -42,6 +42,7 @@ export type CombinatorDeclaration = {
   id: FullCombinatorIdentifier,
   optionalArgs: OptionalArgument[],
   args: Argument[],
+  excl: boolean,
   resultType: ResultType
 }
 
@@ -137,6 +138,7 @@ export type Term =
   | VariableIdentifier
   | number
   | { ...Node, type: 'Term', id: TypeIdentifier, expressions: Expression[] }
+  | { ...Node, type: 'PercentTerm' /* the best name lol */, terms: Term[] }
 
 export type TypeTerm = {
   ...Node,

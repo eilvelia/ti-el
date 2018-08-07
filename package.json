@@ -6,8 +6,9 @@
   "scripts": {
     "flow:check": "flow check --include-warnings --max-warnings 0",
     "types": "flow-copy-source src dist",
-    "build": "lerna exec 'npm run build'",
-    "build:peg": "lerna run --scope tl-parser build:peg",
+    "build": "lerna run build",
+    "build:parser": "lerna run --scope tl-parser build",
+    "build:parser:dev": "lerna run --scope tl-parser build:dev",
     "test": "lerna run test",
     "prepare": "lerna run prepare",
     "prepack": "lerna run prepack",
@@ -23,7 +24,8 @@
   "devDependencies": {
     "flow-bin": "^0.76.0",
     "flow-copy-source": "^1.3.0",
-    "lerna": "^2.11.0"
+    "lerna": "^2.11.0",
+    "pegjs-backtrace": "^0.1.1"
   },
   "author": "Bannerets <save14@protonmail.com>",
   "license": "MIT",
