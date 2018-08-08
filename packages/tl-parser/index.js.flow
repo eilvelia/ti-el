@@ -13,7 +13,7 @@ type LocationRange = {
 	end: Location
 }
 
-declare export class SyntaxError {
+declare class SyntaxErrorClass {
 	line: number;
 	column: number;
 	offset: number;
@@ -23,6 +23,8 @@ declare export class SyntaxError {
 	name: string;
 	message: string;
 }
+
+export type SyntaxError = SyntaxErrorClass
 
 type ParserOptions = {
   startRule?: string,
