@@ -32,7 +32,8 @@ export type FunctionDeclarations = {
 }
 
 export type Declaration =
-  | CombinatorDeclaration | BuiltinCombinatorDeclaration
+  | CombinatorDeclaration
+  | BuiltinCombinatorDeclaration
   | PartialApplicationDeclaration
   | FinalDeclaration
 

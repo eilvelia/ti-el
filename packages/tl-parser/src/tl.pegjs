@@ -266,15 +266,15 @@ PartialTypeAppDecl
         expressions: [head].concat(extractLast(tail))
       })
     }
-  / id:BoxedTypeIdent __ subexpressions:Subexpr+ __ ";" {
+  / id:BoxedTypeIdent subexprs:(__ Subexpr)+ __ ";" {
       return makeNode('PartialTypeApplicationDeclaration', {
-        id, subexpressions
+        id, subexpressions: extractLast(subexprs)
       })
     }
 PartialCombAppDecl
-  = id:CombinatorId subexpressions:Subexpr+ __ ";" {
+  = id:CombinatorId subexprs:(__ Subexpr)+ __ ";" {
       return makeNode('PartialCombinatorApplicationDeclaration', {
-        id, subexpressions
+        id, subexpressions: extractLast(subexprs)
       })
     }
 
@@ -291,11 +291,8 @@ FinalDecl
 // --- ---
 
 Comment
-  = "//" comment:[^\r\n]* "\n"? {
-      return makeNode('Comment', {
-        value: comment.join('')
-      })
-    }
+  = "//" comment:[^\r\n]* "\n"?
+    // { return makeNode('Comment', { value: comment.join('') }) }
 
 // --- ---
 
