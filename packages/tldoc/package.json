@@ -1,7 +1,6 @@
 {
-  "private": true,
   "name": "tldoc",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "",
   "main": "dist/index.js",
   "scripts": {
@@ -20,7 +19,7 @@
     "README.md"
   ],
   "dependencies": {
-    "tl-parser": "^0.2.0"
+    "tl-parser": "^0.3.0"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
