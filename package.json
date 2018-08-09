@@ -24,6 +24,7 @@
   "devDependencies": {
     "flow-bin": "^0.76.0",
     "flow-copy-source": "^1.3.0",
+    "flow-mono-cli": "^1.3.4",
     "lerna": "^2.11.0",
     "pegjs-backtrace": "^0.1.1"
   },
@@ -41,5 +42,8 @@
   "bugs": {
     "url": "https://github.com/Bannerets/ti-el/issues"
   },
-  "homepage": "https://github.com/Bannerets/ti-el#readme"
+  "homepage": "https://github.com/Bannerets/ti-el#readme",
+  "workspaces": [
+    "packages/*"
+  ]
 }
