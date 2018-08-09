@@ -1,5 +1,7 @@
 # tldoc
 
+[![npm](https://img.shields.io/npm/v/tldoc.svg)](https://www.npmjs.com/package/tldoc)
+
 Parses documentation like this:
 
 ```tl
