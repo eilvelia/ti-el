@@ -5,7 +5,8 @@ import { parse as parseTL } from 'tl-parser'
 import type {
   TLProgram,
   CombinatorDeclaration,
-  Argument
+  Argument,
+  Term
 } from 'tl-parser/ast.h'
 
 const findCommentOnLine = (line: string): string | null => {
@@ -26,7 +27,8 @@ const findComments = (str: string): CommentLine[] =>
     .filter(Boolean)
 
 const findDocComments = str => findComments(str)
-  .filter(({ string }) => string[0] === '@')
+  .filter(({ string }) => ['@', '-'].includes(string[0]))
+  .map(obj => ({ ...obj, string: obj.string.replace(/^-/, '') }))
 
 const last = arr => arr[arr.length - 1]
 const push = (el, arr) => { arr.push(el); return arr }
@@ -69,7 +71,8 @@ const removeHash = (str: string) => str.replace(/#.*/, '')
 
 type NormalizedArgument = {
   name: string,
-  type: string
+  type: string,
+  vector: number
 }
 
 type NormalizedCombinator = {
@@ -97,9 +100,27 @@ const combinatorsFromAST = (ast: TLProgram): NormalizedCombinator[] => {
   return combinators
 }
 
+const normalizeTerm = (term: Term): { type: string, vector: number } => {
+  if (typeof term === 'number') throw new Error('Invalid term')
+
+  if (term.type === 'TypeIdentifier') {
+    if (typeof term.name === 'string')
+      return { type: term.name, vector: 0 }
+
+    return { type: term.name.name, vector: 0 }
+  }
+
+  if (term.type === 'Term' && term.id.name === 'vector') {
+    const subterm = (term.expressions[0] || {}).subexpressions[0]
+    const nSubterm = normalizeTerm(subterm)
+    return { ...nSubterm, vector: nSubterm.vector + 1 }
+  }
+
+  throw new Error('Invalid term')
+}
+
 const normalizeArgument = (arg: Argument): NormalizedArgument => {
   const { id } = arg
-
   if (!id) throw new Error('No arg.id')
 
   const { name } = id
@@ -109,13 +130,7 @@ const normalizeArgument = (arg: Argument): NormalizedArgument => {
 
   const { term } = typeTerm
 
-  if (typeof term === 'number' || term.type !== 'TypeIdentifier')
-    throw new Error('Invalid term')
-
-  if (typeof term.name === 'string')
-    return { name, type: term.name }
-
-  return { name, type: term.name.name }
+  return { name, ...normalizeTerm(term) }
 }
 
 const normalizeCombinator = (kind, comb: CombinatorDeclaration): NormalizedCombinator => {
@@ -134,6 +149,8 @@ const normalizeCombinator = (kind, comb: CombinatorDeclaration): NormalizedCombi
 
 export type Parameter = {
   name: string,
+  type: string,
+  vector: number,
   description: string
 }
 
@@ -184,7 +201,7 @@ export const tldoc = (input: string): TldocOutput => {
     .filter(({ map }) => !map.get('class'))
     .map(({ line, map }) => {
       const combinator = combinators.find(c => c.line === line + 1)
-      if (!combinator) throw new Error(`Combinator on line ${line + 1} not found`)
+      if (!combinator) throw new Error(`Combinator on line ${line+1} not found`)
 
       const { name, kind, result } = combinator
       let description
@@ -192,9 +209,11 @@ export const tldoc = (input: string): TldocOutput => {
 
       for (const [key, value] of map.entries()) {
         if (key === 'description') { description = value; continue }
-        const combArg = combinator.args.find(arg => arg.name === key)
-        if (!combArg) throw new Error(`Argument ${key} not found`)
-        parameters.push({ name: key, type: combArg.type, description: value })
+        const name = key.replace(/^param_/, '')
+        const combArg = combinator.args.find(arg => arg.name === name)
+        if (!combArg) throw new Error(`Argument ${name} not found on line ${line+1}`)
+        const { type, vector } = combArg
+        parameters.push({ name, type, vector, description: value })
       }
 
       if (!description) throw new Error(`No description of ${name}`)
