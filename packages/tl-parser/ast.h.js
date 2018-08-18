@@ -43,7 +43,7 @@ export type CombinatorDeclaration = {
   id: FullCombinatorIdentifier,
   optionalArgs: OptionalArgument[],
   args: Argument[],
-  excl: boolean,
+  bang: boolean,
   resultType: ResultType
 }
 
@@ -51,22 +51,17 @@ export type PartialApplicationDeclaration =
   | PartialTypeApplicationDeclaration
   | PartialCombinatorApplicationDeclaration
 
-export type PartialTypeApplicationDeclaration =
-  {
-    ...Node,
-    type: 'PartialTypeApplicationDeclaration',
-    subexpressions: Subexpression[]
-  } | {
-    ...Node,
-    type: 'PartialTypeApplicationDeclaration',
-    expressions: Expression[]
-  }
+export type PartialTypeApplicationDeclaration = {
+  ...Node,
+  type: 'PartialTypeApplicationDeclaration',
+  expression: EExpression
+}
 
 export type PartialCombinatorApplicationDeclaration = {
   ...Node,
   type: 'PartialCombinatorApplicationDeclaration',
   id: CombinatorIdentifier,
-  subexpressions: Subexpression[]
+  expression: EExpression
 }
 
 export type FinalDeclaration = {
@@ -76,40 +71,70 @@ export type FinalDeclaration = {
   id: BoxedTypeIdentifier
 }
 
-export type FullCombinatorIdentifier = {
+export type FullCombinatorIdentifier =
+  | FullCombinatorName
+  | CombinatorIdentifier
+
+export type CombinatorIdentifier =
+  | ShortCombinatorName
+  | EmptyCombinatorName
+
+export type FullCombinatorName = {
   ...Node,
-  type: 'FullCombinatorIdentifier',
-  name: string
+  type: 'FullCombinatorName',
+  name: string, // namespace + lc name
+  magic: string // /[0-9a-f]{8}/
 }
 
-export type CombinatorIdentifier = {
+export type ShortCombinatorName = {
   ...Node,
-  type: 'CombinatorIdentifier',
-  name: string
+  type: 'ShortCombinatorName',
+  name: string // namespace + lc name
 }
 
-export type TypeIdentifier = {
+export type EmptyCombinatorName = { // underscore
   ...Node,
-  type: 'TypeIdentifier',
-  name: BoxedTypeIdentifier | string // | '#'
+  type: 'EmptyCombinatorName',
+  name: string // '_'
 }
+
+export type TypeIdentifier = // lc / uc / #
+  | BoxedTypeIdentifier
+  | SimpleTypeIdentifier
+  | HashTypeIdentifier
 
 export type BoxedTypeIdentifier = {
   ...Node,
   type: 'BoxedTypeIdentifier',
-  name: string
+  name: string // uc
 }
+
+export type SimpleTypeIdentifier = {
+  ...Node,
+  type: 'SimpleTypeIdentifier',
+  name: string // lc
+}
+
+export type HashTypeIdentifier = {
+  ...Node,
+  type: 'HashTypeIdentifier',
+  name: string // '#'
+}
+
+export type OptionalVariableIdentifier =
+  | VariableIdentifier
+  | EmptyVariableIdentifier
 
 export type VariableIdentifier = {
   ...Node,
   type: 'VariableIdentifier',
-  name: string
+  name: string // lc / uc
 }
 
-export type VariableIdentifierOpt = {
+export type EmptyVariableIdentifier = { // underscore
   ...Node,
-  type: 'VariableIdentifierOpt',
-  name: string // | '_'
+  type: 'EmptyVariableIdentifier',
+  name: string // '_'
 }
 
 export type TypeExpression = {
@@ -124,57 +149,67 @@ export type NatExpression = {
   expression: Expression
 }
 
-export type Expression = {
+export type Expression =
+  | ETypeIdentifier
+  | EVariableIdentifier
+  | ENat
+  | EOperator
+  | EExpression
+  | EMultiArg
+
+export type ETypeIdentifier = TypeIdentifier
+export type EVariableIdentifier = VariableIdentifier
+
+export type ENat = {
   ...Node,
-  type: 'Expression',
-  subexpressions: Subexpression[]
+  type: 'ENat',
+  value: number
 }
 
-export type Subexpression = Term // TODO
-
-export type Term =
-  // TODO
-  | Expression
-  | TypeIdentifier
-  | VariableIdentifier
-  | number
-  | { ...Node, type: 'Term', id: TypeIdentifier, expressions: Expression[] }
-  | { ...Node, type: 'PercentTerm' /* the best name lol */, terms: Term[] }
-
-export type TypeTerm = {
+export type EOperator = {
   ...Node,
-  type: 'TypeTerm',
-  term: Term
+  type: 'EOperator',
+  kind: '%' | '!' | '+',
+  expression: Expression
 }
 
-export type NatTerm = {
+export type EExpression = {
   ...Node,
-  type: 'NatTerm',
-  term: Term
+  type: 'EExpression',
+  subexpressions: Expression[]
 }
+
+export type EMultiArg = {
+  ...Node,
+  multiplicity: NatExpression | null,
+  subargs: Argument[]
+}
+
+// export type TypeTerm = {
+//   ...Node,
+//   type: 'TypeTerm',
+//   term: Term
+// }
+//
+// export type NatTerm = {
+//   ...Node,
+//   type: 'NatTerm',
+//   term: Term
+// }
 
 export type OptionalArgument = {
   ...Node,
   type: 'OptionalArgument',
-  ids: VariableIdentifier[],
-  expression: TypeExpression
+  id: VariableIdentifier,
+  argType: TypeExpression
 }
 
 export type Argument = {
   ...Node,
   type: 'Argument',
-  id: VariableIdentifierOpt | null,
+  id: OptionalVariableIdentifier,
   conditionalDef: ConditionalDefinition | null,
-  term: TypeTerm | null,
-  multiplicity: Multiplicity | null,
-  subargs: Argument[] | null,
-  ids: VariableIdentifierOpt[] | null
-}
-
-export type Multiplicity = {
-  ...Node,
-  type: 'Multiplicity',
-  term: NatTerm
+  argType: TypeExpression
 }
 
 export type ConditionalDefinition = {
@@ -188,7 +223,7 @@ export type ResultType = {
   ...Node,
   type: 'ResultType',
   id: BoxedTypeIdentifier,
-  subexpressions: Subexpression[]
+  expression: EExpression
 }
 
 export type BuiltinCombinatorDeclaration = {

@@ -18,19 +18,6 @@
         }, initial)
     })
 
-  const makeArgsNode = ({
-    id = null,
-    conditionalDef = null,
-    term = null,
-    multiplicity = null,
-    subargs = null,
-    ids = null
-  } = {}) =>
-    makeNode('Argument', {
-      id, conditionalDef, term,
-      multiplicity, subargs, ids
-    })
-
   // [[a,b],[c,d]] -> [a,c]
   const extractFirst = list =>
     list.map(list2 => list2 && list2[0])
@@ -60,10 +47,8 @@ Digit
 HexDigit
   = hexDigit:[0-9a-f] { return hexDigit }
 
-Underscore = "_"
-
 Letter = LcLetter / UcLetter
-IdentChar = Letter / Digit / Underscore
+IdentChar = Letter / Digit / "_"
 
 // ---Simple identifiers and keywords---
 
@@ -79,6 +64,10 @@ LcIdentFull =
   )? { return text() }
 
 // ---Other tokens---
+
+FinalKw  = "Final"  !IdentChar
+NewKw    = "New"    !IdentChar
+EmptyKw  = "Empty"  !IdentChar
 
 NatConst = Digit+ { return Number(text()) }
 
@@ -111,7 +100,6 @@ FunDeclarations
         declarations: extractFirst(decls) }) }
 
 Declaration
-  // order changed
   = FinalDecl
   / CombinatorDecl
   / BuiltinCombinatorDecl
@@ -119,45 +107,64 @@ Declaration
 
 // ---Syntactical categories and constructions---
 
-TypeExpr
-  = expression:Expr
-    { return makeNode('TypeExpression', { expression }) }
-NatExpr
-  = expression:Expr
-    { return makeNode('NatExpression', { expression }) }
+ENat
+  = value:NatConst
+    { return makeNode('ENat', { value }) }
+
+// TypeExpr
+//   = expression:Expr
+//     { return makeNode('TypeExpression', { expression }) }
+// NatExpr
+//   = expression:Expr
+//     { return makeNode('NatExpression', { expression }) }
 Expr
   = subexprs:(__ Subexpr)* {
-      return makeNode('Expression', {
+      return makeNode('EExpression', {
         subexpressions: extractLast(subexprs)
       })
     }
 Subexpr
   = Term
-  / NatConst __ "+" __ Subexpr
+  / natexpr:ENat __ "+" __ subexpr:Subexpr {
+      return makeNode('EOperator', {
+        kind: '+',
+        expression: makeNode('EExpression', {
+          subexpressions: [natexpr, subexpr]
+        })
+      })
+    }
   // / Subexpr "+" NatConst
 // Possible infinite loop when parsing
-// (left recursion: TypeExpr -> Expr -> Subexpr -> Subexpr).
+// (left recursion: Expr -> Subexpr -> Subexpr).
 Term
-  // order changed
-  // TODO
   = "(" __ expr:Expr __ ")" { return expr }
-  / id:TypeIdent __ "<" __ head:Expr tail:(__ "," __ Expr)* __ ">" {
-      return makeNode('Term', {
-        id,
-        expressions: [head].concat(extractLast(tail))
+  // / id:TypeIdent __ "<" __ head:Expr tail:(__ "," __ Expr)* __ ">" {
+  / id:TypeIdent __ "<" __ head:Subexpr tail:(__ "," __ Subexpr)* __ ">" {
+      return makeNode('EExpression', {
+        subexpressions: [id, head].concat(extractLast(tail))
       })
     }
   / TypeIdent
-  / VarIdent
-  / NatConst
+  / VarIdent //?
+  / ENat
   / "%" terms:(__ Term)+ {
-      return makeNode('PercentTerm' /* the best name lol */, {
-        terms: extractLast(terms)
+      return makeNode('EOperator', {
+        kind: '%',
+        expression: makeNode('EExpression', {
+          subexpressions: extractLast(terms)
+        })
       })
     }
+
+SimpleTypeIdent
+  = name:LcIdentNs
+    { return makeNode('SimpleTypeIdentifier', { name }) }
+HashTypeIdent
+  = name:"#"
+    { return makeNode('HashTypeIdentifier', { name }) }
+
 TypeIdent
-  = name:(BoxedTypeIdent / LcIdentNs / "#")
-    { return makeNode('TypeIdentifier', { name }) }
+  = BoxedTypeIdent / SimpleTypeIdent / HashTypeIdent
 BoxedTypeIdent
   = name:UcIdentNs
     { return makeNode('BoxedTypeIdentifier', { name }) }
@@ -165,66 +172,98 @@ VarIdent
   = name:(LcIdent / UcIdent)
     { return makeNode('VariableIdentifier', { name }) }
 TypeTerm
-  = term:Term
-    { return makeNode('TypeTerm', { term }) }
+  = bang:"!"? __ expr:Term {
+      const expression = bang === '!'
+        ? makeNode('EOperator', { kind: '!', expression: expr })
+        : expr
+      return makeNode('TypeExpression', { expression })
+    }
 NatTerm
-  = term:Term
-    { return makeNode('NatTerm', { term }) }
+  = expression:Term
+    { return makeNode('NatExpression', { expression }) }
 
 // ---Combinator declarations---
+
+FullCombName
+  = ident:LcIdentFull {
+      const [name, magic] = ident.split('#')
+      if (!magic) return makeNode('ShortCombinatorName', { name })
+      return makeNode('FullCombinatorName', { name, magic })
+    }
+ShortCombName
+  = name:LcIdentNs
+    { return makeNode('ShortCombinatorName', { name }) }
+EmptyCombName
+  = name:"_"
+    { return makeNode('EmptyCombinatorName', { name }) }
+
+VarIdentEmpty
+  = name:"_"
+    { return makeNode('EmptyVariableIdentifier', { name }) }
 
 CombinatorDecl
   = id:FullCombinatorId __
     optionalArgs:(OptArgs __)*
     args:(Args __)*
     "=" __ excl:"!"? __
-    resultType:ResultType __ ";"
-    {
+    resultType:ResultType __ ";" {
       return makeNode('CombinatorDeclaration', {
         id,
-        optionalArgs: extractFirst(optionalArgs),
-        args: extractFirst(args),
-        excl: excl === "!",
+        optionalArgs: [].concat(...extractFirst(optionalArgs)),
+        args: [].concat(...extractFirst(args)),
+        bang: excl === "!",
         resultType
       })
     }
 FullCombinatorId
-  = name:(LcIdentFull / "_")
-    { return makeNode('FullCombinatorIdentifier', { name }) }
+  = FullCombName / EmptyCombName
 CombinatorId
-  = name:(LcIdentNs / "_")
-    { return makeNode('CombinatorIdentifier', { name }) }
+  = ShortCombName / EmptyCombName
 OptArgs
-  = "{" ids:(__ VarIdent)+ __ ":" __ "!"? __ expression:TypeExpr __ "}"
-    { return makeNode('OptionalArgument', { ids: extractLast(ids), expression }) }
+  // = "{" ids:(__ VarIdent)+ __ ":" __ "!"? __ type:TypeExpr __ "}"
+  = "{" ids:(__ VarIdent)+ __ ":" __ argType:TypeTerm __ "}" {
+      return extractLast(ids).map(id =>
+        makeNode('OptionalArgument', { id, argType }))
+    }
 Args
-  // order changed
-  = id:(VarIdentOpt __ ":")? __
+  = idOrNull:(VarIdentOpt __ ":")? __
     mult:(Multiplicity "*")? __
     "[" __ subargs:(__ Args)* __ "]" {
-      return makeArgsNode({
-        id: safeFirst(id),
-        multiplicity: safeFirst(mult),
-        subargs: extractLast(subargs)
+      const id = safeFirst(idOrNull)
+        || makeNode('EmptyVariableIdentifier', { name: '_' })
+
+      const argType = makeNode('TypeExpression', {
+        expression: makeNode('EMultiArg', {
+          multiplicity: safeFirst(mult),
+          subargs: [].concat(...extractLast(subargs))
+        })
       })
+
+      return [makeNode('Argument', {
+        id,
+        conditionalDef: null,
+        argType
+      })]
     }
-  / id:VarIdentOpt __ ":" __ cond:ConditionalDef? "!"? __ term:TypeTerm
-    { return makeArgsNode({ id, conditionalDef: cond, term }) }
-  / id:VarIdentOpt __ ":" __ "(" __ cond:ConditionalDef? "!"? __ term:TypeTerm __ ")"
-    { return makeArgsNode({ id, conditionalDef: cond, term }) }
-  / "(" __ ids:VarIdentOpt+ __ ":" __ "!"? __ term:TypeTerm __ ")"
-    { return makeArgsNode({ ids, term }) }
-  / "!"? __ term:TypeTerm
-    { return makeArgsNode({ term }) }
+  / id:VarIdentOpt __ ":" __ cond:ConditionalDef? __ argType:TypeTerm
+    { return [makeNode('Argument', { id, conditionalDef: cond, argType })] }
+  / id:VarIdentOpt __ ":" __ "(" __ cond:ConditionalDef? __ argType:TypeTerm __ ")"
+    { return [makeNode('Argument', { id, conditionalDef: cond, argType })] }
+  / "(" ids:(__ VarIdentOpt)+ __ ":" __ argType:TypeTerm __ ")" {
+      return extractLast(ids).map(id =>
+        makeNode('Argument', { id, conditionalDef: null, argType }))
+    }
+  / argType:TypeTerm {
+      return [makeNode('Argument', {
+        id: makeNode('EmptyVariableIdentifier', { name: '_' }),
+        conditionalDef: null,
+        argType
+      })]
+    }
 Multiplicity
-  = term:NatTerm
-    { return makeNode('Multiplicity', { term }) }
+  = NatTerm
 VarIdentOpt
-  = id:(VarIdent / "_") {
-      return makeNode('VariableIdentifierOpt', {
-        name: (typeof id === 'object' && id) ? id.name : id
-      })
-    }
+  = VarIdent / VarIdentEmpty
 ConditionalDef
   = id:VarIdent __ nat:("." NatConst)? __ "?" {
       return makeNode('ConditionalDefinition', {
@@ -233,17 +272,20 @@ ConditionalDef
       })
     }
 ResultType
-  // order changed
   = id:BoxedTypeIdent __ "<" __ head:Subexpr tail:(__ "," __ Subexpr)* __ ">" {
       return makeNode('ResultType', {
         id,
-        subexpressions: [head].concat(extractLast(tail))
+        expression: makeNode('EExpression', {
+          subexpressions: [head].concat(extractLast(tail))
+        })
       })
     }
   / id:BoxedTypeIdent subexprs:(__ Subexpr)* {
       return makeNode('ResultType', {
         id,
-        subexpressions: extractLast(subexprs)
+        expression: makeNode('EExpression', {
+          subexpressions: extractLast(subexprs)
+        })
       })
     }
 
@@ -259,39 +301,47 @@ PartialAppDecl
   = PartialTypeAppDecl
   / PartialCombAppDecl
 PartialTypeAppDecl
-  // order changed
-  = id:BoxedTypeIdent __ "<" __ head:Expr tail:(__ "," __ Expr)* __ ">" __ ";" {
+  // = id:BoxedTypeIdent __ "<" __ head:Expr tail:(__ "," __ Expr)* __ ">" __ ";" {
+  = id:BoxedTypeIdent __ "<" __ head:Subexpr tail:(__ "," __ Subexpr)* __ ">" __ ";" {
       return makeNode('PartialTypeApplicationDeclaration', {
         id,
-        expressions: [head].concat(extractLast(tail))
+        expression: makeNode('EExpression', {
+          subexpressions: [head].concat(extractLast(tail))
+        })
       })
     }
   / id:BoxedTypeIdent subexprs:(__ Subexpr)+ __ ";" {
       return makeNode('PartialTypeApplicationDeclaration', {
-        id, subexpressions: extractLast(subexprs)
+        id,
+        expression: makeNode('EExpression', {
+          subexpressions: extractLast(subexprs)
+        })
       })
     }
 PartialCombAppDecl
   = id:CombinatorId subexprs:(__ Subexpr)+ __ ";" {
       return makeNode('PartialCombinatorApplicationDeclaration', {
-        id, subexpressions: extractLast(subexprs)
+        id,
+        expression: makeNode('EExpression', {
+          subexpressions: extractLast(subexprs)
+        })
       })
     }
 
 // ---Type finalization---
 
 FinalDecl
-  = "New" _ ident:BoxedTypeIdent __ ";"
+  = NewKw __ ident:BoxedTypeIdent __ ";"
     { return makeFinalDecl('New', ident) }
-  / "Final" _ ident:BoxedTypeIdent __ ";"
+  / FinalKw __ ident:BoxedTypeIdent __ ";"
     { return makeFinalDecl('Final', ident) }
-  / "Empty" _ ident:BoxedTypeIdent __ ";"
+  / EmptyKw __ ident:BoxedTypeIdent __ ";"
     { return makeFinalDecl('Empty', ident) }
 
 // --- ---
 
 Comment
-  = "//" comment:[^\r\n]* "\n"?
+  = "//" comment:[^\r\n]* ("\n" / EOF)
     // { return makeNode('Comment', { value: comment.join('') }) }
 
 // --- ---
@@ -305,5 +355,8 @@ Ws "whitespace"
 __ "skip whitespace and comments"
   = (Ws / Comment)*
 
-_ "one or more whitespace"
-  = Ws+
+// _ "one or more whitespace"
+//   = Ws+
+
+EOF
+  = !.
