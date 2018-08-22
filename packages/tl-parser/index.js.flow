@@ -2,18 +2,18 @@
 
 import type { TLProgram } from './ast.h'
 
-type Location = {
+export type Location = {
 	line: number,
 	column: number,
 	offset: number
 }
 
-type LocationRange = {
+export type LocationRange = {
 	start: Location,
 	end: Location
 }
 
-declare class SyntaxErrorClass {
+declare export class SyntaxError {
 	line: number;
 	column: number;
 	offset: number;
@@ -24,9 +24,7 @@ declare class SyntaxErrorClass {
 	message: string;
 }
 
-export type SyntaxError = SyntaxErrorClass
-
-type ParserOptions = {
+export type ParserOptions = {
   startRule?: string,
   tracer?: any,
   [key: string]: any

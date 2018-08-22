@@ -12,3 +12,4 @@ yarn.lock
 temp/
 *.log
 /*.txt
+ast.d.ts

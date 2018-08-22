@@ -32,6 +32,12 @@ Import Flow typings:
 import type { TLProgram, CombinatorDeclaration/* ... */} from 'tl-parser/ast.h'
 ```
 
+Import TypeScript typings:
+
+```js
+import { TLProgram, CombinatorDeclaration/* ... */} from 'tl-parser/ast'
+```
+
 ### Example
 
 ```tl

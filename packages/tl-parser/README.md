@@ -5,8 +5,6 @@
 [TL](https://core.telegram.org/mtproto/TL) (Type Language) parser.  
 Uses [pegjs](https://github.com/pegjs/pegjs).
 
-wip
-
 ## Installation
 
 ```console
@@ -30,6 +28,12 @@ Import Flow typings:
 
 ```js
 import type { TLProgram, CombinatorDeclaration/* ... */} from 'tl-parser/ast.h'
+```
+
+Import TypeScript typings:
+
+```js
+import { TLProgram, CombinatorDeclaration/* ... */} from 'tl-parser/ast'
 ```
 
 ### Example
