@@ -181,6 +181,7 @@ export type EExpression = {
 
 export type EMultiArg = {
   ...Node,
+  type: 'EMultiArg',
   multiplicity: NatExpression | null,
   subargs: Argument[]
 }
