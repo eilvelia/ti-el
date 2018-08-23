@@ -1,5 +1,4 @@
 .DS_Store
-.vscode
 *.bak
 coverage/
 node_modules/
@@ -12,4 +11,4 @@ yarn.lock
 temp/
 *.log
 /*.txt
-ast.d.ts
+/packages/tl-parser/ast.d.ts

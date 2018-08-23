@@ -151,14 +151,23 @@ export type NatExpression = {
 
 export type Expression =
   | ETypeIdentifier
-  | EVariableIdentifier
+  // | EVariableIdentifier
   | ENat
   | EOperator
   | EExpression
   | EMultiArg
 
-export type ETypeIdentifier = TypeIdentifier
-export type EVariableIdentifier = VariableIdentifier
+export type ETypeIdentifier = {
+  ...Node,
+  type: 'ETypeIdentifier',
+  id: TypeIdentifier
+}
+
+// export type EVariableIdentifier = {
+//   ...Node,
+//   type: 'EVariableIdentifier'
+//   id: VariableIdentifier
+// }
 
 export type ENat = {
   ...Node,

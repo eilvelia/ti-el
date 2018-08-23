@@ -144,8 +144,8 @@ Term
         subexpressions: [id, head].concat(extractLast(tail))
       })
     }
-  / TypeIdent
-  / VarIdent //?
+  / id:TypeIdent { return makeNode('ETypeIdentifier', { id }) }
+  // / VarIdent //?
   / ENat
   / "%" terms:(__ Term)+ {
       return makeNode('EOperator', {
