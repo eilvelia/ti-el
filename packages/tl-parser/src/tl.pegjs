@@ -136,15 +136,20 @@ Subexpr
   // / Subexpr "+" NatConst
 // Possible infinite loop when parsing
 // (left recursion: Expr -> Subexpr -> Subexpr).
+
+ETypeIdent
+  = id:TypeIdent
+    { return makeNode('ETypeIdentifier', { id }) }
+
 Term
   = "(" __ expr:Expr __ ")" { return expr }
-  // / id:TypeIdent __ "<" __ head:Expr tail:(__ "," __ Expr)* __ ">" {
-  / id:TypeIdent __ "<" __ head:Subexpr tail:(__ "," __ Subexpr)* __ ">" {
+  // / id:ETypeIdent __ "<" __ head:Expr tail:(__ "," __ Expr)* __ ">" {
+  / id:ETypeIdent __ "<" __ head:Subexpr tail:(__ "," __ Subexpr)* __ ">" {
       return makeNode('EExpression', {
         subexpressions: [id, head].concat(extractLast(tail))
       })
     }
-  / id:TypeIdent { return makeNode('ETypeIdentifier', { id }) }
+  / ETypeIdent
   // / VarIdent //?
   / ENat
   / "%" terms:(__ Term)+ {
