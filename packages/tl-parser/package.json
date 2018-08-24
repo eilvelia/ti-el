@@ -1,6 +1,6 @@
 {
   "name": "tl-parser",
-  "version": "0.6.1",
+  "version": "0.7.0",
   "description": "TL (Type Language) parser",
   "main": "index.js",
   "types": "index.d.ts",
