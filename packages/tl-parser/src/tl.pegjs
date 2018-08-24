@@ -59,8 +59,9 @@ LcIdentNs = (NamespaceIdent ".")? LcIdent { return text() }
 UcIdentNs = (NamespaceIdent ".")? UcIdent { return text() }
 LcIdentFull =
   LcIdentNs ("#"
+    // 4 - 8 hex digits
     HexDigit HexDigit HexDigit HexDigit
-    HexDigit HexDigit HexDigit HexDigit
+    HexDigit? HexDigit? HexDigit? HexDigit?
   )? { return text() }
 
 // ---Other tokens---
@@ -69,7 +70,7 @@ FinalKw  = "Final"  !IdentChar
 NewKw    = "New"    !IdentChar
 EmptyKw  = "Empty"  !IdentChar
 
-NatConst = Digit+ { return Number(text()) }
+NatConst = Digit+ !IdentChar { return Number(text()) }
 
 // ---General syntax of a TL program---
 
