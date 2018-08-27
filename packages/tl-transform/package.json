@@ -1,7 +1,6 @@
 {
-  "private": true,
   "name": "tl-transform",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Translates TL to TypeScript / Flow",
   "main": "dist/index.js",
   "scripts": {
@@ -28,7 +27,7 @@
   },
   "dependencies": {
     "ramda": "^0.25.0",
-    "tl-parser": "^0.7.2"
+    "tl-parser": "^0.7.3"
   },
   "devDependencies": {
     "@bannerets/eslint-config-flow": "^0.5.0",
