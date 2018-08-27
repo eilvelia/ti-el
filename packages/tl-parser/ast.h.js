@@ -83,7 +83,7 @@ export type FullCombinatorName = {
   ...Node,
   type: 'FullCombinatorName',
   name: string, // namespace + lc name
-  magic: string // /[0-9a-f]{8}/
+  magic: string // /[0-9a-f]{4,8}/
 }
 
 export type ShortCombinatorName = {
