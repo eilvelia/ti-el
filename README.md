@@ -121,6 +121,8 @@ req_pq#60469778 nonce:int128 = ResPQ;
                 subexpressions: [] } } } ] } }
 ```
 
-## Other packages
+## Packages in this repository
 
-- [tl-transform](packages/tl-transform)
+- [tl-parser](packages/tl-parser) - Type Language parser (main package).
+- [tl-transform](packages/tl-transform) - Translates TL to Flow and TypeScript.
+- [tldoc](packages/tldoc) - Parses documentation comments that used in tdlib tl schemas.
