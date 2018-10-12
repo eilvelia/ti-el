@@ -3,10 +3,12 @@
 import type { Builder } from './types'
 
 export type RunnerConfig = {
+  generateFunctions: boolean,
   generateInvoke: boolean
 }
 
 export const defaultRunnerConfig: RunnerConfig = Object.freeze({
+  generateFunctions: true,
   generateInvoke: true
 })
 

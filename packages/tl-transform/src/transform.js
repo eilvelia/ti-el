@@ -54,11 +54,13 @@ function runner (source: string, builder: Builder, cfg: RunnerConfig) {
       pushln(buildConstructor(comb))
   }
 
-  pushln(beforeFunctions())
+  if (cfg.generateFunctions) {
+    pushln(beforeFunctions())
 
-  for (const comb of functions) {
-    if (!isBuiltin(comb.name))
-      pushln(buildFunction(comb))
+    for (const comb of functions) {
+      if (!isBuiltin(comb.name))
+        pushln(buildFunction(comb))
+    }
   }
 
   pushln(beforeTypes())
@@ -68,9 +70,8 @@ function runner (source: string, builder: Builder, cfg: RunnerConfig) {
   for (const [name, constrNames] of tlTypeMap.entries())
     pushln(buildTLType({ name, constrNames }))
 
-  const fnNames = functions.map(e => e.name)
-
   if (cfg.generateInvoke) {
+    const fnNames = functions.map(e => e.name)
     pushln(buildInvokeType(fnNames))
   }
 
