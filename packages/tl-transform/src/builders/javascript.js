@@ -30,7 +30,7 @@ const builtinJs: BuiltinMap = [
   ['Type', 'any'],
 
   ['int', 'number'],
-  ['long', 'number'],
+  ['long', 'string'],
   ['double', 'number'],
 
   ['boolFalse', 'false'],
