@@ -33,10 +33,12 @@ export type TLType = {
 
 export type Builder = {
   buildFileHeader(): string;
-  buildComment(string): string;
   buildBuiltinTypes(): string;
+  beforeConstructors(): string;
   buildConstructor(TLComb): string;
+  beforeFunctions(): string;
   buildFunction(TLComb): string;
+  beforeTypes(): string;
   buildTLType(TLType): string;
   buildInvokeType(string[]): string;
   isValidId(string): boolean;

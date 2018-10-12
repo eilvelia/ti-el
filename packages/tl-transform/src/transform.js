@@ -30,36 +30,38 @@ const getAllTLTypes = (isValidId, constructors: TLComb[]): TLTypeMap => {
 
 function runner (source: string, builder: Builder, cfg: RunnerConfig) {
   const {
-    buildFileHeader, buildBuiltinTypes, buildComment,
-    buildConstructor, buildFunction, buildTLType,
-    isValidId, buildInvokeType
+    buildFileHeader, buildBuiltinTypes,
+    beforeConstructors, buildConstructor,
+    beforeFunctions, buildFunction,
+    beforeTypes, buildTLType,
+    buildInvokeType, isValidId
   } = builder
 
   const ast = parse(source)
   const { constructors, functions } = simplifyTLProgram(ast)
 
-  const o: string[] = []
+  const o: string[] = [] // output
 
   const pushln = (str: string = '') => { o.push(str); o.push('') }
 
   o.push(buildFileHeader())
   o.push(buildBuiltinTypes())
 
-  pushln(buildComment('/ Constructors ///'))
+  pushln(beforeConstructors())
 
   for (const comb of constructors) {
     if (!isBuiltin(comb.name))
       pushln(buildConstructor(comb))
   }
 
-  pushln(buildComment('/ Functions ///'))
+  pushln(beforeFunctions())
 
   for (const comb of functions) {
     if (!isBuiltin(comb.name))
       pushln(buildFunction(comb))
   }
 
-  pushln(buildComment('/ Types ///'))
+  pushln(beforeTypes())
 
   const tlTypeMap = getAllTLTypes(isValidId, constructors)
 
@@ -69,9 +71,10 @@ function runner (source: string, builder: Builder, cfg: RunnerConfig) {
   const fnNames = functions.map(e => e.name)
 
   if (cfg.generateInvoke) {
-    pushln(buildComment('/ Invoke ///'))
-    o.push(buildInvokeType(fnNames))
+    pushln(buildInvokeType(fnNames))
   }
+
+  o.pop() // remove trailing newline
 
   return o.join(EOL)
 }

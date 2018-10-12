@@ -116,8 +116,6 @@ const buildInfix = (name: TypeName, names: string[], char: string) =>
 export const JsBuilder: Builder = {
   buildFileHeader: () => '// @flow' + EOL,
 
-  buildComment: str => `//${str}`,
-
   buildBuiltinTypes: () => [
     '/// TL Builtin ///',
     '',
@@ -125,10 +123,14 @@ export const JsBuilder: Builder = {
     ''
   ].join(EOL),
 
+  beforeConstructors: () => `/// Constructors ///`,
+
   buildConstructor: ({ name, params }: TLComb) => {
     if (isIdBlacklisted(name)) return ''
     return buildJSObjectType({ name, params })
   },
+
+  beforeFunctions: () => `/// Functions ///`,
 
   buildFunction: ({ name, params, resultType }: TLComb) => {
     if (isIdBlacklisted(name)) return ''
@@ -136,11 +138,15 @@ export const JsBuilder: Builder = {
     return buildJSFunction({ name, params, returnType })
   },
 
+  beforeTypes: () => `/// Types ///`,
+
   buildTLType: ({ name, constrNames }: TLType) =>
     buildInfix(name, constrNames.map(replaceNsDelim), '|'),
 
-  buildInvokeType: fnNames =>
-    buildInfix('Invoke', fnNames.map(replaceNsDelim), '&'),
+  buildInvokeType: fnNames => {
+    const invokeType = buildInfix('Invoke', fnNames.map(replaceNsDelim), '&')
+    return `/// Invoke ///${EOL}${EOL}${invokeType}`
+  },
 
   isValidId: id => !isIdBlacklisted(id)
 }
