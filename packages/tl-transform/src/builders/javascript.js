@@ -4,10 +4,7 @@ import { EOL } from 'os'
 import { pipe, o } from 'ramda'
 
 import type { Builder } from '../types'
-
-import type {
-  TypeName, TLParam, TLComb, TLExpr, TLType
-} from '../types'
+import type { TypeName, TLParam, TLComb, TLExpr, TLType } from '../types'
 
 const CONSTR_NAME_FIELD = '_'
 const NAMESPACE_DELIM = '_'
@@ -52,6 +49,7 @@ const replaceNsDelim = (name: string) => name[0] !== '\''
   : name
 
 const showExpr = ([id_, ...types]: TLExpr): TypeName => {
+  if (!id_) throw new Error(`Invalid type identifier: ${String(id_)}`)
   const id = o(replaceNsDelim, replaceTypeName)(id_)
   const str = types
     .map(replaceTypeName)
@@ -91,7 +89,7 @@ const buildJSObjectType = ({ name, params }: JSObject) => [
     ...params
   ]),
   '}'
-].filter(Boolean).join(EOL)
+].join(EOL)
 
 // const buildGeneric = (generic?: string[]) => generic
 //   ? `<${generic.join(', ')}>`
@@ -103,15 +101,15 @@ const buildJSFunction = ({ name, params, returnType }: JSFunction) => [
   `}) => ${returnType}`
 ].join(EOL)
 
-const buildInfix = (name: TypeName, names: string[], char: string) =>
-  `export type ${replaceNsDelim(name)} =`
-  + EOL
-  + names
+const buildInfix = (name: TypeName, names: string[], char: string) => [
+  `export type ${replaceNsDelim(name)} =`,
+  names
     .map(pipe(
       x => `${char} ${x}`,
       addIndent(INDENT)
     ))
     .join(EOL)
+].join(EOL)
 
 export const JsBuilder: Builder = {
   buildFileHeader: () => '// @flow' + EOL,
