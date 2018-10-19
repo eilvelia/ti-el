@@ -6,8 +6,6 @@
 [TL](https://core.telegram.org/mtproto/TL) (Type Language) parser.  
 Uses [pegjs](https://github.com/pegjs/pegjs).
 
-wip
-
 ## Installation
 
 ```console

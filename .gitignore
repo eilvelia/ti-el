@@ -11,4 +11,3 @@ yarn.lock
 temp/
 *.log
 /*.txt
-/packages/tl-parser/ast.d.ts

@@ -10,7 +10,7 @@ const input = fs.readFileSync(inputFile).toString()
 const nodeRegexp = /type Node = {\|\r?\n([\S\s]+?)\r?\n\|}/
 const [, node] = input.match(nodeRegexp) || []
 
-if (!node) throw new Error('Node not found')
+if (!node) throw new Error('Type "Node" not found')
 
 const output = input
   .replace('// @flow', '')
