@@ -1,5 +1,6 @@
 # ti-el
 
+[![Build Status](https://travis-ci.org/Bannerets/ti-el.svg?branch=master)](https://travis-ci.org/Bannerets/ti-el)
 [![npm](https://img.shields.io/npm/v/tl-parser.svg)](https://www.npmjs.com/package/tl-parser)
 
 [TL](https://core.telegram.org/mtproto/TL) (Type Language) parser.  
