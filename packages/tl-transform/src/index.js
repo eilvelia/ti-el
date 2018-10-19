@@ -4,12 +4,13 @@ import { transform } from './transform'
 
 export { transform }
 
-export type { Config, RunnerConfig } from './config'
-export { defaultConfig, defaultRunnerConfig } from './config'
+export type { Config } from './config'
+export { defaultConfig } from './config'
 
 export type {
-  Builder,
-  TLExpr, TLParam, Mode, TLComb, TL, TLType
+  Lines,
+  TypeName, TLExpr, TLParam, Mode, TLComb, TL, TLType,
+  BuilderFn
 } from './types'
 
 export { BUILTIN, isBuiltin } from './builtin'

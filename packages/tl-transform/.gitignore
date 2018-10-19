@@ -1,3 +1,5 @@
 /*.ts
 /*.js
 /*.js.flow
+/*.gql
+!l82.js

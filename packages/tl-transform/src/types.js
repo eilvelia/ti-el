@@ -1,5 +1,9 @@
 // @flow
 
+export type Lines = string[]
+
+// ---
+
 export type TypeName = string
 
 export type TLExpr = TypeName[]
@@ -31,15 +35,8 @@ export type TLType = {
 
 // ---
 
-export type Builder = {
-  buildFileHeader(): string;
-  buildBuiltinTypes(): string;
-  beforeConstructors(): string;
-  buildConstructor(TLComb): string;
-  beforeFunctions(): string;
-  buildFunction(TLComb): string;
-  beforeTypes(): string;
-  buildTLType(TLType): string;
-  buildInvokeType(string[]): string;
-  isValidId(string): boolean;
-}
+export type BuilderFn = (
+  constructors: TLComb[],
+  functions: TLComb[],
+  types: TLType[]
+) => Lines

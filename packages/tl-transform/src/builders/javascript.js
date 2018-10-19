@@ -1,17 +1,21 @@
 // @flow
 
-import { EOL } from 'os'
 import { pipe, o } from 'ramda'
+import { EOL, addIndent } from '../util'
 
-import type { Builder } from '../types'
-import type { TypeName, TLParam, TLComb, TLExpr, TLType } from '../types'
+import type {
+  TypeName, TLParam, TLComb, TLExpr, TLType,
+  BuilderFn
+} from '../types'
 
 const CONSTR_NAME_FIELD = '_'
 const NAMESPACE_DELIM = '_'
 const INDENT = 2
 
-const blackListedIds = ['string', 'String', 'true', 'null', 'Null', 'Vector']
-const isIdBlacklisted = (id: string) => blackListedIds.includes(id)
+const blackListedIds = new Set([
+  'string', 'String', 'true', 'null', 'Null', 'Vector'
+])
+const isIdBlacklisted = (id: string) => blackListedIds.has(id)
 
 const replaceTypeName = (id: TypeName): TypeName => {
   switch (id) {
@@ -43,7 +47,6 @@ const builtinJs: BuiltinMap = [
 
 const wrapReturnType = (type: TypeName) => `Promise<${type}>`
 
-const addIndent = (n: number) => (str: string) => ' '.repeat(n) + str
 const replaceNsDelim = (name: string) => name[0] !== '\''
   ? name.replace('.', NAMESPACE_DELIM)
   : name
@@ -111,40 +114,75 @@ const buildInfix = (name: TypeName, names: string[], char: string) => [
     .join(EOL)
 ].join(EOL)
 
-export const JsBuilder: Builder = {
-  buildFileHeader: () => '// @flow' + EOL,
+const buildConstructor = ({ name, params }: TLComb) => {
+  return buildJSObjectType({ name, params })
+}
 
-  buildBuiltinTypes: () => [
+const buildFunction = ({ name, params, resultType }: TLComb) => {
+  const returnType = wrapReturnType(showExpr(resultType))
+  return buildJSFunction({ name, params, returnType })
+}
+
+const buildTLType = ({ name, constrNames }: TLType) =>
+  buildInfix(name, constrNames.map(replaceNsDelim), '|')
+
+const buildInvokeType = fnNames =>
+  buildInfix('Invoke', fnNames.map(replaceNsDelim), '&')
+
+const filterBlacklistedCombs = (arr: TLComb[]): TLComb[] => arr
+  .filter(comb => !isIdBlacklisted(comb.name))
+
+const filterBlacklistedTypes = (arr: TLType[]): TLType[] => arr
+  .filter(({ name }) => !isIdBlacklisted(name))
+  .map(({ name, constrNames }) => ({
+    name,
+    constrNames: constrNames.filter(name => !isIdBlacklisted(name))
+  }))
+  .filter(({ constrNames }) => constrNames.length > 0)
+
+// export type JSBuilderConfigStrict = {
+//   generateFunctions: boolean,
+//   generateInvoke: boolean,
+//   constrNameField: string,
+//   namespaceDelim: string,
+//   indent: number
+// }
+//
+// export type JSBuilderConfig = $Shape<JSBuilderConfig>
+//
+// const defaultConfig: $Exact<JSBuilderConfigStrict> = {
+//   generateFunctions: true,
+//   generateInvoke: true,
+//   constrNameField: '_',
+//   namespaceDelim: '',
+//   indent: 2
+// }
+
+export const JsBuilder: BuilderFn = (constructors, functions, types) => {
+  const validConstrs = filterBlacklistedCombs(constructors)
+  const validFuncs = filterBlacklistedCombs(functions)
+  const validTypes = filterBlacklistedTypes(types)
+  return [
+    '// @flow',
+    '',
     '/// TL Builtin ///',
     '',
     builtinJs.map(([a, b]) => `type ${a} = ${b}`).join(EOL),
-    ''
-  ].join(EOL),
-
-  beforeConstructors: () => `/// Constructors ///`,
-
-  buildConstructor: ({ name, params }: TLComb) => {
-    if (isIdBlacklisted(name)) return ''
-    return buildJSObjectType({ name, params })
-  },
-
-  beforeFunctions: () => `/// Functions ///`,
-
-  buildFunction: ({ name, params, resultType }: TLComb) => {
-    if (isIdBlacklisted(name)) return ''
-    const returnType = wrapReturnType(showExpr(resultType))
-    return buildJSFunction({ name, params, returnType })
-  },
-
-  beforeTypes: () => `/// Types ///`,
-
-  buildTLType: ({ name, constrNames }: TLType) =>
-    buildInfix(name, constrNames.map(replaceNsDelim), '|'),
-
-  buildInvokeType: fnNames => {
-    const invokeType = buildInfix('Invoke', fnNames.map(replaceNsDelim), '&')
-    return `/// Invoke ///${EOL}${EOL}${invokeType}`
-  },
-
-  isValidId: id => !isIdBlacklisted(id)
+    '',
+    '/// Constructors ///',
+    '',
+    validConstrs.map(buildConstructor).join(EOL + EOL),
+    '',
+    '/// Functions ///',
+    '',
+    validFuncs.map(buildFunction).join(EOL + EOL),
+    '',
+    '/// Types ///',
+    '',
+    validTypes.map(buildTLType).join(EOL + EOL),
+    '',
+    '/// Invoke ///',
+    '',
+    buildInvokeType(validFuncs.map(e => e.name)),
+  ]
 }

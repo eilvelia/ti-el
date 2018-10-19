@@ -36,3 +36,7 @@ console.log(output)
 ```
 
 See also [config.js](src/config.js).
+
+### Examples
+
+See [l82.js](l82.js).
