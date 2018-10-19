@@ -31,6 +31,7 @@
   },
   "devDependencies": {
     "@bannerets/eslint-config-flow": "^0.5.0",
+    "@playlyfe/gql": "^2.6.0",
     "babel-cli": "^6.26.0",
     "babel-eslint": "^8.2.3",
     "babel-plugin-transform-class-properties": "^6.24.1",
