@@ -154,11 +154,12 @@ Term
   // / VarIdent //?
   / ENat
   / "%" terms:(__ Term)+ {
+      const subexpressions = extractLast(terms)
       return makeNode('EOperator', {
         kind: '%',
-        expression: makeNode('EExpression', {
-          subexpressions: extractLast(terms)
-        })
+        expression: subexpressions.length > 1
+          ? makeNode('EExpression', { subexpressions })
+          : subexpressions[0]
       })
     }
 
