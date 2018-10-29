@@ -1,3 +1,5 @@
+// From tdesktop repository
+
 // Core types (no need to gen)
 
 //vector#1cb5c415 {t:Type} # [ t ] = Vector t;

@@ -1,3 +1,5 @@
+// From examples on telegram website. By @goodmind.
+
 user {flags:#} id:flags.0?string first_name:flags.1?string last_name:flags.2?string reserved3:flags.3?False reserved4:flags.4?False = User flags;
 user_present {flags:#} info:%(User flags) = UserInfo flags;
 user_absent {flags:#} = UserInfo flags;
