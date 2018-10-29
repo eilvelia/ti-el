@@ -1,3 +1,5 @@
+// From tdlib repository
+
 int ? = Int;
 long ? = Long;
 double ? = Double;
