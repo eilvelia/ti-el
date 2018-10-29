@@ -71,7 +71,7 @@ export type FinalDeclaration = {
   id: BoxedTypeIdentifier
 }
 
-export type FullCombinatorIdentifier =
+export type FullCombinatorIdentifier = // CombinatorIdentifier with magic
   | FullCombinatorName
   | CombinatorIdentifier
 
@@ -82,14 +82,14 @@ export type CombinatorIdentifier =
 export type FullCombinatorName = {
   ...Node,
   type: 'FullCombinatorName',
-  name: string, // namespace + lc name
+  name: string, // optional namespace + lc name
   magic: string // /[0-9a-f]{4,8}/
 }
 
 export type ShortCombinatorName = {
   ...Node,
   type: 'ShortCombinatorName',
-  name: string // namespace + lc name
+  name: string // optional namespace + lc name
 }
 
 export type EmptyCombinatorName = { // underscore
@@ -98,7 +98,7 @@ export type EmptyCombinatorName = { // underscore
   name: string // '_'
 }
 
-export type TypeIdentifier = // lc / uc / #
+export type TypeIdentifier = // [ns .] lc / [ns .] uc / #
   | BoxedTypeIdentifier
   | SimpleTypeIdentifier
   | HashTypeIdentifier
@@ -106,13 +106,13 @@ export type TypeIdentifier = // lc / uc / #
 export type BoxedTypeIdentifier = {
   ...Node,
   type: 'BoxedTypeIdentifier',
-  name: string // uc
+  name: string // uc with optional ns
 }
 
 export type SimpleTypeIdentifier = {
   ...Node,
   type: 'SimpleTypeIdentifier',
-  name: string // lc
+  name: string // lc with optional ns
 }
 
 export type HashTypeIdentifier = {
