@@ -16,6 +16,9 @@
     "prepare": "npm run clean && npm run build",
     "prepack": "npm test"
   },
+  "bin": {
+    "ti-el": "bin/ti-el"
+  },
   "files": [
     "dist",
     "bin",
