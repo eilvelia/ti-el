@@ -1,6 +1,7 @@
 [ignore]
 <PROJECT_ROOT>/dist/
 <PROJECT_ROOT>/.*\.json
+<PROJECT_ROOT>/tl-transform/
 
 [include]
 
@@ -10,5 +11,13 @@
 
 [options]
 module.use_strict=true
+include_warnings=true
+suppress_type=$FlowIgnore
+suppress_type=$FlowFixMe
+suppress_type=$FlowTodo
+types_first=false
 
 [strict]
+
+[declarations]
+<PROJECT_ROOT>/node_modules/.*

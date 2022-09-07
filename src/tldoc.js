@@ -1,13 +1,13 @@
 // @flow
 
-import { parse as parseTL } from 'tl-parser'
+import { parse as parseTL } from './tl'
 
 import type {
   TLProgram,
   CombinatorDeclaration,
   Argument,
-  Term
-} from 'tl-parser/ast.h'
+  Expression
+} from '../ast'
 
 const findCommentOnLine = (line: string): string | null => {
   const commentRegexp = /^[ \t]*\/\/(.*)/
@@ -100,23 +100,25 @@ const combinatorsFromAST = (ast: TLProgram): NormalizedCombinator[] => {
   return combinators
 }
 
-const normalizeTerm = (term: Term): { type: string, vector: number } => {
-  if (typeof term === 'number') throw new Error('Invalid term')
+const normalizeExpression = (expr: Expression): {| type: string, vector: number |} => {
+  if (typeof expr === 'number') throw new Error('Invalid expression')
 
-  if (term.type === 'TypeIdentifier') {
-    if (typeof term.name === 'string')
-      return { type: term.name, vector: 0 }
+  if (expr.type === 'ETypeIdentifier')
+    return { type: expr.id.name, vector: 0 }
 
-    return { type: term.name.name, vector: 0 }
+  if (expr.type === 'EExpression') {
+    if (expr.subexpressions.length !== 2)
+      throw new Error('Unsupported expression length')
+    const typeConstr = expr.subexpressions[0]
+    if (typeConstr.type === 'ETypeIdentifier' && typeConstr.id.name === 'vector') {
+      const subterm = expr.subexpressions[1]
+      const nSubterm = normalizeExpression(subterm)
+      return { ...nSubterm, vector: nSubterm.vector + 1 }
+    }
+    throw new Error('Unsupported type constructor')
   }
 
-  if (term.type === 'Term' && term.id.name === 'vector') {
-    const subterm = (term.expressions[0] || {}).subexpressions[0]
-    const nSubterm = normalizeTerm(subterm)
-    return { ...nSubterm, vector: nSubterm.vector + 1 }
-  }
-
-  throw new Error('Invalid term')
+  throw new Error('Unsupported expression')
 }
 
 const normalizeArgument = (arg: Argument): NormalizedArgument => {
@@ -124,13 +126,9 @@ const normalizeArgument = (arg: Argument): NormalizedArgument => {
   if (!id) throw new Error('No arg.id')
 
   const { name } = id
-  const { term: typeTerm } = arg
+  const type = arg.argType.expression
 
-  if (!typeTerm) throw new Error('No arg.term')
-
-  const { term } = typeTerm
-
-  return { name, ...normalizeTerm(term) }
+  return { name, ...normalizeExpression(type) }
 }
 
 const normalizeCombinator = (kind, comb: CombinatorDeclaration): NormalizedCombinator => {

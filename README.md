@@ -1,43 +1,55 @@
 # ti-el
 
-[![Build Status](https://travis-ci.org/Bannerets/ti-el.svg?branch=master)](https://travis-ci.org/Bannerets/ti-el)
-[![npm](https://img.shields.io/npm/v/tl-parser.svg)](https://www.npmjs.com/package/tl-parser)
+[![npm](https://img.shields.io/npm/v/ti-el.svg)](https://www.npmjs.com/package/ti-el)
 
-[TL](https://core.telegram.org/mtproto/TL) (Type Language) parser.  
+A [TL](https://core.telegram.org/mtproto/TL) (Type Language) parser.
 Uses [pegjs](https://github.com/pegjs/pegjs).
 
 ## Installation
 
 ```console
-$ npm i tl-parser
+$ npm install ti-el
 ```
 
 ## Usage
 
-From JavaScript:
-
 ```js
-const { parse } = require('tl-parser')
+const { parse, tldoc } = require('ti-el')
 const ast = parse('req_pq#60469778 nonce:int128 = ResPQ;')
 console.dir(ast, { depth: null })
 ```
 
-[AST typings](packages/tl-parser/ast.h.js)  
-[Grammar](packages/tl-parser/src/tl.pegjs)
+- [The AST types](ast.js)
+- [The PEG.js grammar](src/tl.pegjs)
 
-Import Flow typings:
+You can import Flow or TypeScript types for the AST:
 
-```js
-import type { TLProgram, CombinatorDeclaration/* ... */} from 'tl-parser/ast.h'
+```typescript
+import type { TLProgram, CombinatorDeclaration /* ... */ } from 'tl-parser/ast'
 ```
 
-Import TypeScript typings:
+The `tldoc` function can parse documentation comments like the following, which
+are used in TDLib:
 
-```js
-import { TLProgram, CombinatorDeclaration/* ... */} from 'tl-parser/ast'
+```tl
+//@class MaskPoint @description Part of the face, relative to which a mask should be placed
+
+//@description A mask should be placed relatively to the mouth
+maskPointMouth = MaskPoint;
+
+//@description A mask should be placed relatively to the chin
+maskPointChin = MaskPoint;
+
+//@description Position on a photo where a mask should be placed @point Part of the face, relative to which the mask should be placed
+//@x_shift Shift by X-axis measured in widths of the mask scaled to the face size, from left to right. (For example, -1.0 will place the mask just to the left of the default mask position)
+//@y_shift Shift by Y-axis measured in heights of the mask scaled to the face size, from top to bottom. (For example, 1.0 will place the mask just below the default mask position)
+//@scale Mask scaling coefficient. (For example, 2.0 means a doubled size)
+maskPosition point:MaskPoint x_shift:double y_shift:double scale:double = MaskPosition;
 ```
 
-### Example
+This package also provides a `ti-el` console utility.
+
+## Example
 
 ```tl
 int ? = Int;
@@ -120,8 +132,20 @@ req_pq#60469778 nonce:int128 = ResPQ;
                 subexpressions: [] } } } ] } }
 ```
 
-## Packages in this repository
+---
 
-- [tl-parser](packages/tl-parser) - Type Language parser (main package).
-- [tl-transform](packages/tl-transform) - Translates TL to Flow and TypeScript.
-- [tldoc](packages/tldoc) - Parses documentation comments that used in tdlib tl schemas.
+This library was written in 2018. Previously, the `ti-el` package was named
+`tl-parser` on npm. This library is meant to be replaced by
+[camlproto/tl](https://github.com/Bannerets/camlproto/tree/2644e33bc7c86e5308514b8734b9e602c279b80a/src/tl)
+(written in OCaml) in the future, but that one cannot parse tldoc yet.
+
+See [this](https://github.com/Bannerets/ti-el/tree/f5b25c659d7c4c3efe7dccdaab5f38e6d42fd96f)
+for the old structure of this repository.
+
+For transforming TDLib's `td_api.tl` into TypeScript and Flow typings using
+`tldoc`, see `tdlib-types` in the `tdl` repository.
+
+There's also [tl-transform](tl-transform/), but it's currently not used anywhere
+and deprecated.
+
+The project is not actively maintained.

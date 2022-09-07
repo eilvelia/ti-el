@@ -22,6 +22,11 @@ maskPosition point:MaskPoint x_shift:double y_shift:double scale:double = MaskPo
 //-with error code 500. To continue working, one should create a new instance of the TDLib client
 authorizationStateClosed = AuthorizationState;
 
+//@class Game @description A game
+
+//@description A param named description should be parsed correctly
+//@param_description A game description
+game description:MaskPoint = Game;
 ---functions---
 
 //@description Sets the parameters for TDLib initialization. Works only when the current authorization state is authorizationStateWaitTdlibParameters @parameters Parameters
@@ -33,7 +38,8 @@ setTdlibParameters parameters:tdlibParameters = Ok;
 const output =
   { baseClasses:
     [ { name: 'MaskPoint',
-        description: 'Part of the face, relative to which a mask should be placed' } ],
+        description: 'Part of the face, relative to which a mask should be placed' },
+      { name: 'Game', description: 'A game' } ],
    classes:
     [ { line: 6,
         name: 'maskPointMouth',
@@ -75,7 +81,17 @@ const output =
         description: 'TDLib client is in its final state. All databases are closed and all resources are released. No other updates will be received after this. All queries will be responded to with error code 500. To continue working, one should create a new instance of the TDLib client',
         parameters: [],
         result: 'AuthorizationState' },
-      { line: 24,
+      { line: 25,
+        name: 'game',
+        kind: 'constructor',
+        description: 'A param named description should be parsed correctly',
+        parameters:
+          [ { name: 'description',
+              type: 'MaskPoint',
+              vector: 0,
+              description: 'A game description' } ],
+        result: 'Game' },
+      { line: 29,
         name: 'setTdlibParameters',
         kind: 'function',
         description: 'Sets the parameters for TDLib initialization. Works only when the current authorization state is authorizationStateWaitTdlibParameters',

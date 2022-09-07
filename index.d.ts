@@ -29,3 +29,31 @@ export type ParserOptions = {
 }
 
 export function parse(str: string, options?: ParserOptions): TLProgram
+
+export type Parameter = {
+  name: string,
+  type: string,
+  vector: number,
+  description: string
+}
+
+export type BaseClass = {
+  name: string,
+  description: string
+}
+
+export type TdClass = {
+  line: number,
+  name: string,
+  kind: 'function' | 'constructor',
+  description: string,
+  parameters: Parameter[],
+  result: string
+}
+
+export type TldocOutput = {
+  baseClasses: BaseClass[],
+  classes: TdClass[]
+}
+
+export function tldoc(input: string): TldocOutput
