@@ -348,7 +348,7 @@ FinalDecl
 // --- ---
 
 Comment
-  = "//" comment:[^\r\n]* ("\n" / EOF)
+  = "//" comment:[^\r\n]* ([\r\n] / EOF)
     // { return makeNode('Comment', { value: comment.join('') }) }
 
 // --- ---

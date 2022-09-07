@@ -1,13 +1,18 @@
 #!/usr/bin/env node
 
 const fs = require('fs')
-const { parse } = require('../index.js')
+const { parse, tldoc } = require('../index.js')
 
 const action = process.argv[2]
 
-if (action !== 'parse') {
-  console.error('The second argument must be "parse"')
-  process.exit(1)
+let outputTldoc = false
+
+switch (action) {
+  case 'parse': break
+  case 'tldoc': outputTldoc = true; break
+  default:
+    console.error('The second argument must be "parse" or "tldoc"')
+    process.exit(1)
 }
 
 const filename = process.argv[3]
@@ -16,7 +21,7 @@ const json = process.argv[4] === '--json'
 const str = fs.readFileSync(filename).toString()
 
 try {
-  const ast = parse(str)
+  const ast = outputTldoc ? tldoc(str) : parse(str)
   if (json)
     console.log(JSON.stringify(ast, null, '  '))
   else

@@ -88,7 +88,9 @@ const combinatorsFromAST = (ast: TLProgram): NormalizedCombinator[] => {
   const funcDecls = ast.functions.declarations
 
   const constCombs: CombinatorDeclaration[] = (constrDecls
-    .filter(e => e.type === 'CombinatorDeclaration'): $FlowFixMe)
+    .filter(e => e.type === 'CombinatorDeclaration'
+      // Also remove vector constructors
+      && e.id.name !== 'vector'): $FlowFixMe)
   const funcCombs: CombinatorDeclaration[] = (funcDecls
     .filter(e => e.type === 'CombinatorDeclaration'): $FlowFixMe)
 

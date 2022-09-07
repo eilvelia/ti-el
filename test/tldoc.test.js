@@ -1,4 +1,5 @@
-
+const fs = require('fs')
+const path = require('path')
 const { tldoc } = require('../dist')
 
 const text = `
@@ -102,6 +103,14 @@ const output =
              description: 'Parameters' } ],
         result: 'Ok' } ] }
 
-test('tldoc', () => {
+test('tldoc for a simple file', () => {
   expect(tldoc(text)).toEqual(output)
+})
+
+const schema =
+  fs.readFileSync(path.join(__dirname, '..', 'schema', 'tdlib_v1.8.0.tl'))
+    .toString()
+
+test('Should correctly output documentation for TDLib v1.8.0', () => {
+  expect(tldoc(schema)).toMatchSnapshot()
 })
