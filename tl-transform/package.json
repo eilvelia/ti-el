@@ -30,19 +30,16 @@
     "tl-parser": "^0.7.3"
   },
   "devDependencies": {
-    "@bannerets/eslint-config-flow": "^0.5.0",
     "babel-cli": "^6.26.0",
-    "babel-eslint": "^8.2.3",
     "babel-plugin-transform-class-properties": "^6.24.1",
     "babel-plugin-transform-object-rest-spread": "^6.26.0",
     "babel-preset-env": "^1.6.1",
     "babel-preset-flow": "^6.23.0",
-    "eslint": "^4.19.1",
     "flow-bin": "^0.76.0",
     "flow-copy-source": "^1.3.0",
     "rimraf": "^2.6.2"
   },
-  "author": "bannerets <comonoid@protonmail.com>",
+  "author": "eilvelia <hi@eilvelia.cat>",
   "license": "MIT",
   "keywords": [
     "tl",
@@ -53,10 +50,10 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Bannerets/ti-el.git"
+    "url": "git+https://github.com/eilvelia/ti-el.git"
   },
   "bugs": {
-    "url": "https://github.com/Bannerets/ti-el/issues"
+    "url": "https://github.com/eilvelia/ti-el/issues"
   },
-  "homepage": "https://github.com/Bannerets/ti-el#readme"
+  "homepage": "https://github.com/eilvelia/ti-el#readme"
 }

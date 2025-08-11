@@ -1,9 +1,9 @@
-# ti-el
-
-[![npm](https://img.shields.io/npm/v/ti-el.svg)](https://www.npmjs.com/package/ti-el)
+# ti-el &nbsp; [![npm](https://img.shields.io/npm/v/ti-el.svg)](https://www.npmjs.com/package/ti-el)
 
 A [TL](https://core.telegram.org/mtproto/TL) (Type Language) parser.
 Uses [pegjs](https://github.com/pegjs/pegjs).
+
+Can also parse "tldoc" used in TDLib.
 
 ## Installation
 
@@ -136,16 +136,15 @@ req_pq#60469778 nonce:int128 = ResPQ;
 
 This library was written in 2018. Previously, the `ti-el` package was named
 `tl-parser` on npm. This library is meant to be replaced by
-[camlproto/tl](https://github.com/Bannerets/camlproto/tree/2644e33bc7c86e5308514b8734b9e602c279b80a/src/tl)
+[camlproto/tl](https://github.com/eilvelia/camlproto/tree/2644e33bc7c86e5308514b8734b9e602c279b80a/src/tl)
 (written in OCaml) in the future, but that one cannot parse tldoc yet.
 
-See [this](https://github.com/Bannerets/ti-el/tree/f5b25c659d7c4c3efe7dccdaab5f38e6d42fd96f)
+See [this](https://github.com/eilvelia/ti-el/tree/f5b25c659d7c4c3efe7dccdaab5f38e6d42fd96f)
 for the old structure of this repository.
 
-For transforming TDLib's `td_api.tl` into TypeScript and Flow typings using
-`tldoc`, see `tdlib-types` in the `tdl` repository.
-
-There's also [tl-transform](tl-transform/), but it's currently not used anywhere
+For transforming TDLib's `td_api.tl` into TypeScript and Flow types using
+`tldoc`, see `tdl-install-types` in the `tdl` repository. There's also
+[tl-transform](tl-transform/), but it's currently not used anywhere
 and deprecated.
 
 The project is not actively maintained.
